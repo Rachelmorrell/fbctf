@@ -345,6 +345,7 @@ class IndexController extends Controller {
                   name="teamname"
                   type="text"
                   maxlength={20}
+                  autofocus={true}
                 />
                 {$ldap_domain_suffix}
               </div>
@@ -451,12 +452,17 @@ class IndexController extends Controller {
                   name="teamname"
                   type="text"
                   maxlength={20}
+                  autofocus={true}
                 />
                 {$ldap_domain_suffix}
               </div>
               <div class="form-el el--text">
                 <label for="">{tr('Password')}</label>
                 <input autocomplete="off" name="password" type="password" />
+              </div>
+              <div id="password_error" class="el--text completely-hidden">
+                <label for=""></label>
+                <h6 style="color:red;">{tr('Password is too simple')}</h6>
               </div>
               {$token_field}
             </fieldset>
@@ -726,7 +732,8 @@ class IndexController extends Controller {
       </main>;
   }
 
-  public function renderMobilePage(): :xhp {
+  public async function genRenderMobilePage(): Awaitable<:xhp> {
+    $branding_xhp = await $this->genRenderBranding();
     return
       <div class="fb-row-container full-height page--mobile">
         <main
@@ -745,12 +752,12 @@ class IndexController extends Controller {
           </div>
         </main>
         <div class="row-fixed">
-          <fbbranding />
+          {$branding_xhp}
         </div>
       </div>;
   }
 
-  public function renderMainNav(): :xhp {
+  public async function genRenderMainNav(): Awaitable<:xhp> {
     if (SessionUtils::sessionActive()) {
       $right_nav =
         <ul class="nav-right">
@@ -798,17 +805,20 @@ class IndexController extends Controller {
           </a>
         </li>
       </ul>;
+    $branding_gen = await $this->genRenderBranding();
+    $branding = 
+      <div class="branding">
+        <a href="/">
+          <div class="branding-rules">
+            {$branding_gen}
+          </div>
+        </a>
+      </div>;
 
     return
       <nav class="fb-main-nav fb-navigation">
         {$left_nav}
-        <div class="branding">
-          <a href="/">
-            <div class="branding-rules">
-              <fbbranding />
-            </div>
-          </a>
-        </div>
+        {$branding}
         {$right_nav}
       </nav>;
   }
@@ -820,7 +830,7 @@ class IndexController extends Controller {
       case 'error':
         return $this->renderErrorPage();
       case 'mobile':
-        return $this->renderMobilePage();
+        return await $this->genRenderMobilePage();
       case 'login':
         return await $this->genRenderLoginContent();
       case 'registration':
@@ -841,11 +851,12 @@ class IndexController extends Controller {
   <<__Override>>
   public async function genRenderBody(string $page): Awaitable<:xhp> {
     $rendered_page = await $this->genRenderPage($page);
+    $rendered_nav = await $this->genRenderMainNav();
     return
       <body data-section="pages">
         <div class="fb-sprite" id="fb-svg-sprite"></div>
         <div class="fb-viewport">
-          <div id="fb-main-nav">{$this->renderMainNav()}</div>
+          <div id="fb-main-nav">{$rendered_nav}</div>
           <div id="fb-main-content" class="fb-page">{$rendered_page}</div>
         </div>
         <script type="text/javascript" src="static/dist/js/app.js"></script>
