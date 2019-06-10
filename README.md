@@ -1,4 +1,4 @@
-# FBCTF [![Build Status](https://travis-ci.org/facebook/fbctf.svg)](https://travis-ci.org/facebook/fbctf)
+# FBCTF [![Build Status](https://travis-ci.org/facebook/fbctf.svg)](https://travis-ci.org/facebook/fbctf) [![Greenkeeper badge](https://badges.greenkeeper.io/Rachelmorrell/fbctf.svg)](https://greenkeeper.io/)
 
 ## What is FBCTF?
 
