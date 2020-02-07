@@ -18,14 +18,15 @@ class AttachmentDataController extends DataController {
     if (intval($attachment_id) !== 0) {
       $attachment_exists =
         await Attachment::genCheckExists(intval($attachment_id));
-      if ($attachment_exists === true) {
+      $active = await Attachment::checkActive(intval($attachment_id));
+      if ($attachment_exists === true && $active === true) {
         $attachment = await Attachment::gen(intval($attachment_id));
         $filename = $attachment->getFilename();
 
         // Remove all non alpahnum characters from filename - allow international chars, dash, underscore, and period
         $filename = preg_replace('/[^\p{L}\p{N}_\-.]+/u', '_', $filename);
 
-        $data = readfile(Attachment::attachmentsDir.$filename);
+        $data = file_get_contents(Attachment::attachmentsDir.$filename);
       }
     }
 

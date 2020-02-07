@@ -403,6 +403,19 @@ class Attachment extends Model {
     }
   }
 
+  public static async function checkActive(
+    int $attachment_id
+  ): Awaitable<bool> {
+    $db = await self::genDb();
+    $result = await $db->queryf('SELECT active FROM levels
+    WHERE id=(SELECT level_id FROM attachments WHERE id=%d) AND active = 1', $attachment_id);
+    $rows = $result->numRows();
+    if ($rows) {
+      return true;
+    }
+    return false;
+  }
+
   public static async function genCheckExists(
     int $attachment_id,
     bool $refresh = false,
